@@ -11,9 +11,14 @@ import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.amphibians.ui.AmphibiansApp
+import com.example.amphibians.ui.AmphibiansViewModel
 import com.example.amphibians.ui.theme.AmphibiansTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,15 +27,20 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AmphibiansTheme {
-                // A surface container using the 'background' color from the theme
-                Scaffold(topBar = { AmphibiansTopAppBar() }) {
+                val scrollBehaviour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+                val nestedScrollConnection = scrollBehaviour.nestedScrollConnection
+                Scaffold(topBar = { AmphibiansTopAppBar(scrollBehaviour) }) {
                     Surface(
                         modifier = Modifier
                             .padding(it)
+                            .nestedScroll(nestedScrollConnection)
                             .fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        AmphibiansApp()
+                        val amphibiansViewModel: AmphibiansViewModel = viewModel()
+                        AmphibiansApp(amphibiansViewModel.amphibiansUiState, retryHandler = {
+                            amphibiansViewModel.getAmphibians()
+                        })
                     }
                 }
             }
@@ -40,7 +50,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AmphibiansTopAppBar(modifier: Modifier = Modifier) {
+fun AmphibiansTopAppBar(scrollBehavior: TopAppBarScrollBehavior, modifier: Modifier = Modifier) {
     MediumTopAppBar(
         title = {
             Text(
@@ -48,6 +58,7 @@ fun AmphibiansTopAppBar(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.headlineLarge
             )
         },
+        scrollBehavior = scrollBehavior,
         modifier = modifier
     )
 }
