@@ -29,15 +29,16 @@ class MainActivity : ComponentActivity() {
             AmphibiansTheme {
                 val scrollBehaviour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
                 val nestedScrollConnection = scrollBehaviour.nestedScrollConnection
-                Scaffold(topBar = { AmphibiansTopAppBar(scrollBehaviour) }) {
+                Scaffold(topBar = { AmphibiansTopAppBar(scrollBehaviour) }) { paddingValues ->
                     Surface(
                         modifier = Modifier
-                            .padding(it)
+                            .padding(paddingValues)
                             .nestedScroll(nestedScrollConnection)
                             .fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        val amphibiansViewModel: AmphibiansViewModel = viewModel()
+                        val amphibiansViewModel: AmphibiansViewModel =
+                            viewModel(factory = AmphibiansViewModel.Factory)
                         AmphibiansApp(amphibiansViewModel.amphibiansUiState, retryHandler = {
                             amphibiansViewModel.getAmphibians()
                         })
@@ -50,7 +51,10 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AmphibiansTopAppBar(scrollBehavior: TopAppBarScrollBehavior, modifier: Modifier = Modifier) {
+fun AmphibiansTopAppBar(
+    scrollBehavior: TopAppBarScrollBehavior,
+    modifier: Modifier = Modifier
+) {
     MediumTopAppBar(
         title = {
             Text(
